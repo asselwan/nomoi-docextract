@@ -1,4 +1,5 @@
 import http from "node:http";
+import crypto from "node:crypto";
 
 import { extractLabs, extractCard } from "./lib/extract.js";
 import { LLMParseError } from "./lib/llm.js";
@@ -66,11 +67,18 @@ function readJsonBody(req) {
 }
 
 function isAuthorised(req) {
-  const expected = process.env.EXTRACT_API_TOKEN;
-  if (!expected) return false; // fail closed if the token is not configured
+  // The caller must present the Supabase service-role key. The Healthspan
+  // dashboard and the Front Desk clinic view already hold it at runtime —
+  // the operator pastes it to read data — and forward it here. It is never
+  // baked into client code, so it cannot leak through a public config file.
+  const expected = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!expected) return false; // fail closed if not configured
   const header = req.headers["authorization"] || "";
   const m = header.match(/^Bearer\s+(.+)$/i);
-  return !!m && m[1] === expected;
+  if (!m) return false;
+  const got = Buffer.from(m[1]);
+  const want = Buffer.from(expected);
+  return got.length === want.length && crypto.timingSafeEqual(got, want);
 }
 
 /* ------------------------------------------------------------------ *

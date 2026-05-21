@@ -34,19 +34,21 @@ All configuration is read from the environment — nothing is hardcoded.
 | `LITELLM_API_KEY`           | yes      | Bearer key for the LiteLLM gateway.                            |
 | `LITELLM_BASE_URL`          | yes      | LiteLLM base URL — `https://litellm.nomoi.ai`.                 |
 | `SUPABASE_URL`              | yes      | Supabase project URL.                                          |
-| `SUPABASE_SERVICE_ROLE_KEY` | yes      | Service-role key — Storage download + table writes. Server only. |
-| `EXTRACT_API_TOKEN`         | yes      | Shared bearer token the two POST endpoints require.            |
+| `SUPABASE_SERVICE_ROLE_KEY` | yes      | Service-role key — Storage download, table writes, AND the bearer the two POST endpoints require. Server only. |
 | `PORT`                      | no       | HTTP listen port. Defaults to `8080`.                          |
 
 ## Auth
 
-Both POST endpoints require:
+Both POST endpoints require the Supabase service-role key as the bearer:
 
 ```
-Authorization: Bearer <EXTRACT_API_TOKEN>
+Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY>
 ```
 
-A missing or wrong token returns `401 {"error":"unauthorized"}`.
+The Healthspan dashboard and the Front Desk clinic view already hold this
+key at runtime (the operator enters it to read data) and forward it here, so
+no secret is ever baked into client config. A missing or wrong key returns
+`401 {"error":"unauthorized"}`.
 
 ## CORS
 
