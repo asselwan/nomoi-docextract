@@ -1,0 +1,17 @@
+{
+  "name": "nomoi-docextract",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NOMOI document-extraction backend: lab-report PDFs to biomarkers, ID/insurance cards to structured fields.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check lib/extract.js && node --check lib/llm.js && node --check lib/supabase.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  }
+}
